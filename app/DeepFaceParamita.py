@@ -1,6 +1,7 @@
 from deepface import DeepFace
 import pandas as pd
 import numpy as np
+import sys
 from statistics import fmean
 
 import logging,traceback
@@ -20,17 +21,25 @@ def df_verify(img, listImg):
           model_name = 'VGG-Face',
           distance_metric = 'cosine',
           detector_backend = 'opencv',
-          # threshold= 0.60         
+          # threshold= 0.68 # default threshold for cosine metric         
       )
       listDist.append(result['distance'])
       
     fmeanResult = fmean(listDist)
     accrcy  = (1 - fmeanResult) * 100
     if accrcy <= 60 :
-      return False
+      return {
+        'code' : 200,
+        'results' : False
+        }
     else : 
-      return True # successful face recognition if result > 60%
+      return {
+        'code' : 200,
+        'results' : True
+        } # successful face recognition if result > 60%
   except Exception as ex :
     return {
-      'error' : 500,
-      'message' : ex}
+      'code' : 400,
+      'result' : False,
+      'message' : str(ex)
+    }

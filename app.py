@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, reqparse
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token
 import requests
 
 # import local files
@@ -9,17 +10,28 @@ from app.config import url as url
 from app import DeepFaceParamita as DFP
 
 app = Flask(__name__)
-#  { start request parser 
-new_login_post_args = reqparse.RequestParser()
-new_login_post_args.add_argument('userId',
-                                type = str,
-                                help = 'User ID cannot be empty.',
-                                required = True)
+app.config['JWT_SECRET_KEY'] = 'tsai-wl1278'
+jwt = JWTManager(app)
 
-new_login_post_args.add_argument('accessToken',
-                                type = str,
-                                help = 'Access token cannot be empty.',
-                                required = True)
+#  { start request parser for face verification
+parser_verify = reqparse.RequestParser()
+parser_verify.add_argument(
+    'userId',
+    type = str,
+    help = 'User ID cannot be empty.',
+    required = True)
+
+parser_verify.add_argument(
+    'accessToken',
+    type = str,
+    help = 'Access token cannot be empty.',
+    required = True)
+
+parser_verify.add_argument(
+    'imageUrl',
+    type = str,
+    help = 'Image URl cannot be empty.',
+    required = True)
 #  end request parser }
 
 # set headers for api requests
@@ -40,8 +52,7 @@ def index():
 # login and get refresh token
 def face_verify():
     try:
-        args = new_login_post_args.parse_args() # get user pass from param then post req
-      
+        args = parser_verify.parse_args() # get user pass from param then post req
         if request.method == 'POST':
             responseAbsence = requests.get(
                 url= url.getPhotoAbsences(),
@@ -55,16 +66,17 @@ def face_verify():
             
             if JSONString['statusCode'] == 200:
                 result = DFP.df_verify(imageBaseUrl, imageAbsenceLast)
-                return { 'code':200,
-                    'result':result
-                }
+                return result
             else :
                 raise BusinessException(str(JSONString['message'], JSONString['statusCode']))
         else:
             raise BusinessException('Method not allowed.', 405)
     except (Exception,ValueError,BusinessException) as ex:
-        return {'error':ex,
-                'result':False} # set return as false
+        return {
+            'code' : 500,
+            'result' : False,
+            'message' : str(ex)
+        } # set return as false
     
 if __name__ == "__main__":
     with app.app_context():
