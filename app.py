@@ -52,7 +52,7 @@ def index():
 # login and get refresh token
 def face_verify():
     try:
-        args = parser_verify.parse_args() # get user pass from param then post req
+        args = parser_verify.parse_args() # get input data from JSON body
         if request.method == 'POST':
             responseAbsence = requests.get(
                 url= url.getPhotoAbsences(),
@@ -61,7 +61,8 @@ def face_verify():
                 params= {'userId':args['userId']}
             )
             JSONString = responseAbsence.json()
-            imageBaseUrl = JSONString['data']['imageBaseUrl'] # single image of the person
+            # imageBaseUrl = JSONString['data']['imageBaseUrl'] # single image of the person
+            imageBaseUrl = args['imageUrl'] # single image of the person
             imageAbsenceLast = JSONString['data']['imageAbsenceLast'] # recent 30 images
             
             if JSONString['statusCode'] == 200:
