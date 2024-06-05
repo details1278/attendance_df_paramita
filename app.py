@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, reqparse
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token
 import requests
 
 # import local files
@@ -10,8 +9,6 @@ from app.config import url as url
 from app import DeepFaceParamita as DFP
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'tsai-wl1278'
-jwt = JWTManager(app)
 
 #  { start request parser for face verification
 parser_verify = reqparse.RequestParser()
