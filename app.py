@@ -69,7 +69,7 @@ def face_verify():
                 raise BusinessException(str(JSONString['message'], JSONString['statusCode']))
         else:
             raise BusinessException('Method not allowed.', 405)
-    except (Exception,ValueError,BusinessException) as ex:
+    except Exception as ex:
         return {
             'code' : 500,
             'result' : False,
