@@ -13,6 +13,59 @@ def df_extract_face(img):
   except : 
     return None
 
+def df_verify_single(img1, img2):
+  try :
+    # declare empty accrcy
+    accrcy = 0.0
+    fmeanResult = 0.0
+
+    face_obj_img1 = df_extract_face(img1)
+    face_obj_img2 = df_extract_face(img2)
+    if face_obj_img1 is None:
+      return {
+        'code' : 400,
+        'result' : False,
+        'message' : "Face not detected in the image provided."
+        }
+    if face_obj_img2 is None:
+      return {
+        'code' : 400,
+        'result' : False,
+        'message' : "Face not detected in the registered image."
+      }
+    else : 
+      result = DeepFace.verify(
+          img1_path = img1,
+          img2_path = img2,
+          model_name = 'VGG-Face',
+          distance_metric = 'cosine',
+          detector_backend = 'opencv',
+          normalization = 'VGGFace',
+          # threshold= 0.68 # default threshold for cosine metric         
+      )
+      if result['distance'] < 0 and result['verified'] == True:
+        # update distance as 0.0 if verified = True and distance below zero
+        result['distance'] = 0.0
+      accrcy = (1 - result['distance']) * 100
+      if accrcy <= 35:
+        return {
+          'code' : 200,
+          'accuracy' : accrcy,
+          'results' : False
+          }
+      else : 
+        return {
+          'code' : 200,
+          'accuracy' : accrcy,
+          'results' : True
+          } # successful face recognition if result > 60%
+  except Exception as ex :
+    return {
+      'code' : 400,
+      'result' : False,
+      'message' : str(ex)
+    }
+  
 def df_verify(img, listImg):
   try :
     # declare empty accrcy
