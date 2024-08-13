@@ -59,10 +59,13 @@ def face_verify():
             )
             JSONString = responseAbsence.json()
             # imageBaseUrl = JSONString['data']['imageBaseUrl'] # single image of the person
-            imageBaseUrl = args['imageUrl'] # single image of the person
-            imageAbsenceLast = JSONString['data']['imageAbsenceLast'] # recent 30 images
-            
-            if JSONString['statusCode'] == 200:
+            if JSONString['statusCode'] == 200: # check hasil dari response absence, if success continue
+                imageBaseUrl = args['imageUrl'] # single image of the person
+                imageAbsenceLast = JSONString['data']['imageAbsenceLast'] # recent 30 images
+
+                if len(imageAbsenceLast) == 0:
+                    imageAbsenceLast.append(imageBaseUrl)
+
                 result = DFP.df_verify(imageBaseUrl, imageAbsenceLast)
                 return result
             else :
