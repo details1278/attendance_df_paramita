@@ -47,7 +47,7 @@ def df_verify_single(img1, img2):
         # update distance as 0.0 if verified = True and distance below zero
         result['distance'] = 0.0
       accrcy = (1 - result['distance']) * 100
-      if accrcy <= 35:
+      if accrcy <= 65:
         return {
           'code' : 200,
           'accuracy' : accrcy,
